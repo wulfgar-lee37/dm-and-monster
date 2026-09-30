@@ -2,19 +2,39 @@
 set -euo pipefail
 
 REPO_NAME="dm-and-monster"
-GH="${GH:-gh}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+GH_DIR="$SCRIPT_DIR/.tools/gh"
+ARCH=$(uname -m)
+if [ "$ARCH" = "arm64" ]; then GH_ARCH="arm64"; else GH_ARCH="amd64"; fi
+GH="$GH_DIR/bin/gh"
 
-if ! command -v "$GH" >/dev/null 2>&1; then
-  echo "GitHub CLI (gh) not found. Install from https://cli.github.com or: brew install gh"
-  exit 1
+install_gh() {
+  echo "Installing GitHub CLI (no Homebrew needed)..."
+  mkdir -p "$GH_DIR"
+  TMPZIP=$(mktemp /tmp/gh.XXXXXX.zip)
+  curl -fsSL "https://github.com/cli/cli/releases/download/v2.67.0/gh_2.67.0_macOS_${GH_ARCH}.zip" -o "$TMPZIP"
+  unzip -qo "$TMPZIP" -d "$GH_DIR"
+  rm "$TMPZIP"
+  mv "$GH_DIR"/gh_*/* "$GH_DIR/"
+  rmdir "$GH_DIR"/gh_* 2>/dev/null || true
+  echo "GitHub CLI installed."
+}
+
+if [ ! -x "$GH" ]; then
+  if command -v gh >/dev/null 2>&1; then
+    GH=$(command -v gh)
+  else
+    install_gh
+  fi
 fi
 
 if ! "$GH" auth status >/dev/null 2>&1; then
-  echo "Log in to GitHub (one-time):"
+  echo ""
+  echo "Log in to GitHub (one-time, opens browser):"
   "$GH" auth login --hostname github.com --git-protocol https --web
 fi
 
-cd "$(dirname "$0")"
+cd "$SCRIPT_DIR"
 
 if git remote get-url origin >/dev/null 2>&1; then
   echo "Pushing to existing origin..."

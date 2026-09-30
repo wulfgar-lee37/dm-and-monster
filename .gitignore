@@ -1,4 +1,5 @@
 .vercel
+.tools/
 .env
 .env.*
 *.log
