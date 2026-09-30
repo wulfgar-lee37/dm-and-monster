@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DM & Monster — SRD 5.2.1 Table Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-icon">⚔</span>
+        <div>
+          <h1>DM & Monster</h1>
+          <p class="subtitle">SRD 5.2.1 · 5.5e rules</p>
+        </div>
+      </div>
+      <nav class="mode-nav" id="modeNav">
+        <button class="mode-btn active" data-mode="home">Home</button>
+        <button class="mode-btn" data-mode="dm">DM Mode</button>
+        <button class="mode-btn" data-mode="monster">Play Monster</button>
+      </nav>
+    </header>
+
+    <main id="mainContent">
+      <!-- Home -->
+      <section id="homeView" class="view active">
+        <div class="hero">
+          <h2>Run the table or become the beast.</h2>
+          <p>Choose your role. All monster stats come from the official <strong>SRD 5.2.1</strong> (5.5e rules) — 329 creatures with real AC, HP, actions, and traits.</p>
+          <div class="hero-cards">
+            <button class="hero-card" data-goto="dm">
+              <span class="hero-card-icon">🎲</span>
+              <h3>DM Mode</h3>
+              <p>Initiative tracker, encounters, dice roller, scene prompts, and quick stat lookups.</p>
+            </button>
+            <button class="hero-card" data-goto="monster">
+              <span class="hero-card-icon">👹</span>
+              <h3>Play as Monster</h3>
+              <p>Pick any SRD creature, track HP, roll attacks, and roleplay with type-based persona prompts.</p>
+            </button>
+          </div>
+        </div>
+        <footer class="license-note">
+          <p>D&amp;D System Reference Document v5.2.1 © Wizards of the Coast LLC. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. This is unofficial fan content.</p>
+        </footer>
+      </section>
+
+      <!-- DM Mode -->
+      <section id="dmView" class="view">
+        <div class="dm-layout">
+          <aside class="dm-sidebar panel">
+            <h3>Tools</h3>
+            <div class="tool-tabs">
+              <button class="tool-tab active" data-dm-tab="initiative">Initiative</button>
+              <button class="tool-tab" data-dm-tab="encounter">Encounter</button>
+              <button class="tool-tab" data-dm-tab="dice">Dice</button>
+              <button class="tool-tab" data-dm-tab="scenes">Scenes</button>
+              <button class="tool-tab" data-dm-tab="notes">Notes</button>
+            </div>
+          </aside>
+
+          <div class="dm-main">
+            <!-- Initiative -->
+            <div id="dmInitiative" class="dm-panel active">
+              <div class="panel-header">
+                <h2>Initiative Tracker</h2>
+                <div class="panel-actions">
+                  <button id="nextTurnBtn" class="btn primary">Next Turn</button>
+                  <button id="sortInitBtn" class="btn">Sort</button>
+                  <button id="clearInitBtn" class="btn danger">Clear</button>
+                </div>
+              </div>
+              <form id="addCombatantForm" class="inline-form">
+                <input type="text" id="combatantName" placeholder="Name" required />
+                <input type="number" id="combatantInit" placeholder="Init" required />
+                <input type="number" id="combatantHp" placeholder="HP (opt)" />
+                <input type="number" id="combatantAc" placeholder="AC (opt)" />
+                <button type="submit" class="btn primary">Add</button>
+              </form>
+              <ul id="initiativeList" class="initiative-list"></ul>
+            </div>
+
+            <!-- Encounter -->
+            <div id="dmEncounter" class="dm-panel">
+              <div class="panel-header">
+                <h2>Encounter Builder</h2>
+                <div class="encounter-summary" id="encounterSummary"></div>
+              </div>
+              <div class="monster-search-wrap">
+                <input type="search" id="encounterSearch" placeholder="Search SRD monsters…" autocomplete="off" />
+                <div id="encounterSearchResults" class="search-results hidden"></div>
+              </div>
+              <ul id="encounterList" class="encounter-list"></ul>
+            </div>
+
+            <!-- Dice -->
+            <div id="dmDice" class="dm-panel">
+              <div class="panel-header"><h2>Dice Roller</h2></div>
+              <div class="dice-controls">
+                <div class="dice-row">
+                  <label>Die</label>
+                  <select id="diceType">
+                    <option value="4">d4</option>
+                    <option value="6">d6</option>
+                    <option value="8">d8</option>
+                    <option value="10">d10</option>
+                    <option value="12">d12</option>
+                    <option value="20" selected>d20</option>
+                    <option value="100">d100</option>
+                  </select>
+                  <label>Count</label>
+                  <input type="number" id="diceCount" value="1" min="1" max="20" />
+                  <label>Mod</label>
+                  <input type="number" id="diceMod" value="0" />
+                </div>
+                <div class="dice-row">
+                  <label class="checkbox-label"><input type="radio" name="rollMode" value="normal" checked /> Normal</label>
+                  <label class="checkbox-label"><input type="radio" name="rollMode" value="advantage" /> Advantage</label>
+                  <label class="checkbox-label"><input type="radio" name="rollMode" value="disadvantage" /> Disadvantage</label>
+                </div>
+                <button id="rollDiceBtn" class="btn primary large">Roll</button>
+                <div id="diceResult" class="dice-result"></div>
+                <div class="quick-dice">
+                  <button class="btn small" data-quick="1d20">d20</button>
+                  <button class="btn small" data-quick="2d6">2d6</button>
+                  <button class="btn small" data-quick="1d8">d8</button>
+                  <button class="btn small" data-quick="1d12">d12</button>
+                  <button class="btn small" data-quick="4d6">4d6</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scenes -->
+            <div id="dmScenes" class="dm-panel">
+              <div class="panel-header">
+                <h2>Scene &amp; Story Prompts</h2>
+                <button id="generateSceneBtn" class="btn primary">Generate Scene</button>
+              </div>
+              <div id="sceneOutput" class="scene-output"></div>
+            </div>
+
+            <!-- Notes -->
+            <div id="dmNotes" class="dm-panel">
+              <div class="panel-header"><h2>Session Notes</h2></div>
+              <textarea id="sessionNotes" placeholder="Campaign notes, NPC names, plot threads…" rows="16"></textarea>
+              <p class="hint">Notes save automatically in your browser.</p>
+            </div>
+          </div>
+
+          <aside class="dm-stat-sidebar panel">
+            <h3>Quick Stat Lookup</h3>
+            <div class="monster-search-wrap">
+              <input type="search" id="dmStatSearch" placeholder="Monster name…" autocomplete="off" />
+              <div id="dmStatSearchResults" class="search-results hidden"></div>
+            </div>
+            <div id="dmStatBlock" class="stat-block-container"></div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Monster Mode -->
+      <section id="monsterView" class="view">
+        <div class="monster-layout">
+          <aside class="monster-picker panel">
+            <h3>Choose Your Monster</h3>
+            <input type="search" id="monsterSearch" placeholder="Search 329 SRD creatures…" autocomplete="off" />
+            <div class="filter-row">
+              <select id="crFilter">
+                <option value="">All CR</option>
+                <option value="0">CR 0</option>
+                <option value="0.125">CR 1/8</option>
+                <option value="0.25">CR 1/4</option>
+                <option value="0.5">CR 1/2</option>
+                <option value="1">CR 1</option>
+                <option value="2">CR 2</option>
+                <option value="3">CR 3</option>
+                <option value="4">CR 4</option>
+                <option value="5">CR 5+</option>
+              </select>
+              <select id="typeFilter">
+                <option value="">All Types</option>
+              </select>
+            </div>
+            <ul id="monsterList" class="monster-list"></ul>
+          </aside>
+
+          <div class="monster-main">
+            <div id="monsterEmpty" class="empty-state">
+              <span class="empty-icon">🐉</span>
+              <h2>Select a monster</h2>
+              <p>Pick a creature from the list to embody it at the table.</p>
+            </div>
+            <div id="monsterPlay" class="hidden">
+              <div class="monster-play-header panel">
+                <div>
+                  <h2 id="playMonsterName"></h2>
+                  <p id="playMonsterMeta" class="meta"></p>
+                </div>
+                <div class="hp-tracker">
+                  <label>Hit Points</label>
+                  <div class="hp-controls">
+                    <button id="hpMinus10" class="btn small">−10</button>
+                    <button id="hpMinus" class="btn small">−</button>
+                    <input type="number" id="currentHp" />
+                    <span>/</span>
+                    <span id="maxHp"></span>
+                    <button id="hpPlus" class="btn small">+</button>
+                    <button id="hpPlus10" class="btn small">+10</button>
+                    <button id="hpReset" class="btn small">Reset</button>
+                  </div>
+                  <div class="hp-bar"><div id="hpBarFill"></div></div>
+                </div>
+              </div>
+
+              <div class="monster-play-grid">
+                <div class="panel">
+                  <h3>Combat Actions</h3>
+                  <div id="actionButtons" class="action-buttons"></div>
+                  <div id="rollLog" class="roll-log"></div>
+                </div>
+                <div class="panel">
+                  <h3>Initiative &amp; Saves</h3>
+                  <div class="quick-stats" id="quickStats"></div>
+                  <button id="rollInitBtn" class="btn">Roll Initiative</button>
+                </div>
+                <div class="panel persona-panel">
+                  <h3>Roleplay Persona</h3>
+                  <div id="personaCard"></div>
+                  <button id="newPersonaBtn" class="btn">New Prompt</button>
+                </div>
+              </div>
+
+              <div id="playStatBlock" class="stat-block-container panel"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
